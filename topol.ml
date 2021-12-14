@@ -1,0 +1,3 @@
+open PMap;;
+
+exception Cykliczne;;
