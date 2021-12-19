@@ -8,6 +8,19 @@ open PMap;;
 
 exception Cykliczne;;
 
+let merge l = 
+    let first = List.sort (fun (a,_) (b,_) -> compare a b) l in
+    let rec helper l merged = 
+        match l,merged with
+        |[],_ -> merged
+        |h::t,[] -> helper t [h]
+        |(v1,l1)::t1,(v2,l2)::t2 ->
+            if v1=v2 then
+                helper t1 ((v1,l1@l2)::t2)
+            else
+                helper t1 ((v1,l1)::(v2,l2)::t2)
+    in helper first []
+
 (* 
     prosta funkcja tworząca mapę (graf) dla listy
     każdemu wierzchołkowi pryzpisana jest lista jego sąsiadów
@@ -17,7 +30,7 @@ let create_map l =
         match l with
         [] -> m
         |(v,maps)::t ->  helper t (PMap.add v maps m)
-    in helper l PMap.empty
+    in helper (merge l) PMap.empty
 ;;
 
 let topol l = 
