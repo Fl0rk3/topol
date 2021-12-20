@@ -3,8 +3,6 @@
     Autor: Florian Ficek
     Code review: Wojtek Rzepliński
 *)
-open List;;
-open PMap;;
 
 exception Cykliczne;;
 
@@ -23,14 +21,10 @@ let merge l =
 
 (* 
     prosta funkcja tworząca mapę (graf) dla listy
-    każdemu wierzchołkowi pryzpisana jest lista jego sąsiadów
+    każdemu wierzchołkowi przypisana jest lista jego sąsiadów
 *)
 let create_map l = 
-    let rec helper l m = 
-        match l with
-        [] -> m
-        |(v,maps)::t ->  helper t (PMap.add v maps m)
-    in helper (merge l) PMap.empty
+    List.fold_left (fun m (v,maps) -> PMap.add v maps m) PMap.empty (merge l)
 ;;
 
 let topol l = 
@@ -52,7 +46,7 @@ let topol l =
         |(_,_) -> if not (PMap.mem w !visited) then
             (
             visited := PMap.add w 0 !visited; (* przypisanie wierzchołka jako odwiedzonego *)
-            if mem w !graph then (* sprawdzenie czy wierczhołek znajduje się w mapie, jeśli tak, rekurencja dfs dla jego sąsiadów *)
+            if PMap.mem w !graph then (* sprawdzenie czy wierczhołek znajduje się w mapie, jeśli tak, rekurencja dfs dla jego sąsiadów *)
                 List.iter dfs (PMap.find w !graph);
             visited := PMap.add w 1 !visited; (* przypisanie wierzchołka jako dodanego *)
             tsort := w::(!tsort);
